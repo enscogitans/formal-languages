@@ -146,7 +146,6 @@ class Solver:
         if len(max_word_len) != 1 or len(max_suffix_len) != 1:
             raise RegExpParseError
 
-        print(re_stack[0])
         return max_suffix_len[0] >= letter_degree
 
 
@@ -154,12 +153,3 @@ if __name__ == '__main__':
     alpha, x, k = input().split()
     k = int(k)
     print('YES' if Solver.has_suffix(alpha, x, k) else 'NO')
-
-# ab+c.aba.*.bac.+.+* a 2
-# NO
-
-# acb..bab.c.*.ab.ba.+.+*a. c 0
-# YES
-
-# ac.bc.c.+ c 2
-# YES
