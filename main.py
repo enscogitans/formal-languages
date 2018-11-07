@@ -8,7 +8,7 @@ class Solver:
 
     @staticmethod
     def _check_list_sizes(threshold: int, *lists: list):
-        return all((len(lst) >= threshold for lst in lists))
+        return all(len(lst) >= threshold for lst in lists)
 
     @staticmethod
     def _handle_concatenation(re_stack: list, max_word_len: list, max_suffix_len: list):
