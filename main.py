@@ -66,7 +66,7 @@ class Solver:
             max_suffix_len.append(float('inf'))
 
     @staticmethod
-    def _handle_required_letter(letter: str, max_word_len: list, max_suffix_len: list):
+    def _handle_required_letter(max_word_len: list, max_suffix_len: list):
         max_word_len.append(1)
         max_suffix_len.append(1)
 
@@ -76,7 +76,7 @@ class Solver:
         max_suffix_len.append(0)
 
     @staticmethod
-    def _handle_letter(letter: str, max_word_len: list, max_suffix_len: list):
+    def _handle_letter(max_word_len: list, max_suffix_len: list):
         max_word_len.append(None)
         max_suffix_len.append(0)
 
@@ -101,11 +101,11 @@ class Solver:
 
         for curr_symbol in regular_expression:
             if curr_symbol == letter:
-                Solver._handle_required_letter(curr_symbol, max_word_len, max_suffix_len)
+                Solver._handle_required_letter(max_word_len, max_suffix_len)
             elif curr_symbol == '1':
                 Solver._handle_empty_letter(max_word_len, max_suffix_len)
             elif curr_symbol in Solver._alphabet:
-                Solver._handle_letter(curr_symbol, max_word_len, max_suffix_len)
+                Solver._handle_letter(max_word_len, max_suffix_len)
             elif curr_symbol == '.':
                 Solver._handle_concatenation(max_word_len, max_suffix_len)
             elif curr_symbol == '+':
