@@ -11,19 +11,9 @@ class Solver:
         return all(len(lst) >= threshold for lst in lists)
 
     @staticmethod
-    def _handle_concatenation(re_stack: list, max_word_len: list, max_suffix_len: list):
-        if not Solver._check_list_sizes(2, re_stack, max_word_len, max_suffix_len):
+    def _handle_concatenation(max_word_len: list, max_suffix_len: list):
+        if not Solver._check_list_sizes(2, max_word_len, max_suffix_len):
             raise RegExpParseError
-
-        re_last = re_stack.pop()
-        re_prev = re_stack.pop()
-
-        if re_last == '1':
-            re_stack.append(re_prev)
-        elif re_prev == '1':
-            re_stack.append(re_last)
-        else:
-            re_stack.append(f'({re_prev}.{re_last})')
 
         max_word_last = max_word_len.pop()
         max_word_prev = max_word_len.pop()
@@ -42,17 +32,9 @@ class Solver:
             max_suffix_len.append(max_suffix_last)
 
     @staticmethod
-    def _handle_union(re_stack: list, max_word_len: list, max_suffix_len: list):
-        if not Solver._check_list_sizes(2, re_stack, max_word_len, max_suffix_len):
+    def _handle_union(max_word_len: list, max_suffix_len: list):
+        if not Solver._check_list_sizes(2, max_word_len, max_suffix_len):
             raise RegExpParseError
-
-        re_last = re_stack.pop()
-        re_prev = re_stack.pop()
-
-        if re_last == re_prev == '1':
-            re_stack.append('1')
-        else:
-            re_stack.append(f'({re_prev}+{re_last})')
 
         max_word_last = max_word_len.pop()
         max_word_prev = max_word_len.pop()
@@ -69,41 +51,32 @@ class Solver:
         max_suffix_len.append(max(max_suffix_prev, max_suffix_last))
 
     @staticmethod
-    def _handle_kleene_star(re_stack: list, max_word_len: list, max_suffix_len: list):
-        if not Solver._check_list_sizes(1, re_stack, max_word_len, max_suffix_len):
+    def _handle_kleene_star(max_word_len: list, max_suffix_len: list):
+        if not Solver._check_list_sizes(1, max_word_len, max_suffix_len):
             raise RegExpParseError
-
-        re_last = re_stack.pop()
-        re_stack.append(f'{re_last}*')
 
         max_word_last = max_word_len.pop()
         max_suffix_last = max_suffix_len.pop()
 
-        if max_word_last is None:
+        if max_word_last is None or max_word_last == 0:
             max_word_len.append(0)
             max_suffix_len.append(max_suffix_last)
-        elif re_last == '1':
-            max_word_len.append(0)
-            max_suffix_len.append(0)
         else:
             max_word_len.append(float('inf'))
             max_suffix_len.append(float('inf'))
 
     @staticmethod
-    def _handle_required_letter(letter: str, re_stack: list, max_word_len: list, max_suffix_len: list):
-        re_stack.append(letter)
+    def _handle_required_letter(letter: str, max_word_len: list, max_suffix_len: list):
         max_word_len.append(1)
         max_suffix_len.append(1)
 
     @staticmethod
-    def _handle_empty_letter(re_stack: list, max_word_len: list, max_suffix_len: list):
-        re_stack.append('1')
+    def _handle_empty_letter(max_word_len: list, max_suffix_len: list):
         max_word_len.append(0)
         max_suffix_len.append(0)
 
     @staticmethod
-    def _handle_letter(letter: str, re_stack: list, max_word_len: list, max_suffix_len: list):
-        re_stack.append(letter)
+    def _handle_letter(letter: str, max_word_len: list, max_suffix_len: list):
         max_word_len.append(None)
         max_suffix_len.append(0)
 
@@ -123,23 +96,22 @@ class Solver:
             False, otherwise
         """
 
-        re_stack = []           # Current RE in infix notation.
         max_word_len = []       # The biggest `r`, s.t. `x^r` is in language. `None` if there is no such r.
         max_suffix_len = []     # The biggest `r`, s.t. `x^r` is a suffix of a word from language.
 
         for curr_symbol in regular_expression:
             if curr_symbol == letter:
-                Solver._handle_required_letter(curr_symbol, re_stack, max_word_len, max_suffix_len)
+                Solver._handle_required_letter(curr_symbol, max_word_len, max_suffix_len)
             elif curr_symbol == '1':
-                Solver._handle_empty_letter(re_stack, max_word_len, max_suffix_len)
+                Solver._handle_empty_letter(max_word_len, max_suffix_len)
             elif curr_symbol in Solver._alphabet:
-                Solver._handle_letter(curr_symbol, re_stack, max_word_len, max_suffix_len)
+                Solver._handle_letter(curr_symbol, max_word_len, max_suffix_len)
             elif curr_symbol == '.':
-                Solver._handle_concatenation(re_stack, max_word_len, max_suffix_len)
+                Solver._handle_concatenation(max_word_len, max_suffix_len)
             elif curr_symbol == '+':
-                Solver._handle_union(re_stack, max_word_len, max_suffix_len)
+                Solver._handle_union(max_word_len, max_suffix_len)
             elif curr_symbol == '*':
-                Solver._handle_kleene_star(re_stack, max_word_len, max_suffix_len)
+                Solver._handle_kleene_star(max_word_len, max_suffix_len)
             else:
                 raise RegExpParseError
 
