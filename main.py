@@ -27,7 +27,7 @@ class Solver:
             max_word_len.append(None)
 
         if max_word_last is not None:
-            max_suffix_len.append(max(max_word_last + max_suffix_prev, max_suffix_last))
+            max_suffix_len.append(max(max_suffix_prev + max_word_last, max_suffix_last))
         else:
             max_suffix_len.append(max_suffix_last)
 
